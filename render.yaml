@@ -1,0 +1,54 @@
+version: "1"
+
+services:
+  - type: web
+    name: turbo-api
+    env: node
+    rootDir: .
+    buildCommand: npm install && npx turbo run build --filter=api
+    startCommand: npm start --workspace=apps/api
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: turbo-web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: JWT_SECRET
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: af-south-1
+      - key: AWS_BUCKET_NAME
+        value: via-samaria-cms-bucket
+      - key: S3_BUCKET_NAME
+        value: via-samaria-cms-bucket
+
+  - type: web
+    name: turbo-web
+    env: node
+    rootDir: .
+    buildCommand: npm install && npx turbo run build --filter=web
+    startCommand: npm start --workspace=apps/web
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: turbo-api
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
